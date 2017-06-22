@@ -1,0 +1,59 @@
+---
+- hosts: all
+  remote_user: ansible
+  tasks:
+  - name: Ensure EPEL is enabled
+    yum:
+      name: epel-release
+      state: present
+    become: true
+  - name: Ensure libselinux-python is present
+    yum:
+      name: libselinux-python
+      state: present
+    become: true
+  - name: Ensure libsemanage-python is present
+    yum:
+      name: libsemanage-python
+      state: present
+    become: true
+  - name: Ensure we have the last version of every package
+    yum:
+      name: "*"
+      state: latest
+    become: true
+  - name: Ensure NTP is installed
+    yum:
+      name: ntp
+      state: present
+    become: true
+  - name: Ensure the timezone is set to UTC
+    file:
+      src: /usr/share/zoneinfo/GMT
+      dest: /etc/localtime
+      state: link
+    become: true
+  - name: Ensure the NTP service is running and enabled
+    service:
+      name: ntpd
+      state: started
+      enabled: True
+    become: True
+  - name: Ensure FirewallD is installed
+    yum:
+      name: firewalld
+      state: present
+    become: true
+  - name: Ensure SSH can pass the firewall
+    firewalld:
+      service: ssh
+      state: enabled
+      permanent: True
+      immediate: True
+    become: true
+  - name: Ensure FirewallD is running
+    service:
+      name: firewalld
+      state: started
+      enabled: true
+    become: true
